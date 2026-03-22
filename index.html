@@ -7,9 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; background: #f8fafc; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background: #f8fafc; }
         .hidden { display: none; }
-        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -17,7 +16,9 @@
     <div id="auth_container" class="flex flex-col items-center justify-center min-h-[80vh] space-y-8">
         <div class="bg-white p-12 rounded-[2rem] shadow-2xl text-center border-t-8 border-blue-600 max-w-sm w-full">
             <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="id-card"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
             </div>
             <h2 class="text-3xl font-black text-slate-800 mb-4">身分驗證</h2>
             <p class="text-slate-500 mb-10 font-bold leading-relaxed">本系統僅供安坑車務中心<br>授權人員登入使用</p>
@@ -27,7 +28,7 @@
                  data-callback="handleCredentialResponse"
                  data-auto_prompt="false">
             </div>
-            <div class="g_id_signin flex justify-center" data-type="standard" data-size="large" data-theme="filled_blue" data-text="signin_with" data-shape="pill" data-logo_alignment="left"></div>
+            <div class="g_id_signin flex justify-center" data-type="standard" data-size="large" data-theme="filled_blue" data-text="signin_with" data-shape="pill"></div>
         </div>
     </div>
 
@@ -43,45 +44,26 @@
 
         <section class="bg-white p-12 rounded-[3rem] shadow-2xl border border-blue-100 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-3 h-full bg-blue-600"></div>
-            <h3 class="text-3xl font-black text-blue-800 mb-8 flex items-center gap-3">
-                <span class="bg-blue-800 text-white p-2 rounded-lg text-lg">!</span>
-                今日行車運轉重點
-            </h3>
+            <h3 class="text-3xl font-black text-blue-800 mb-8 flex items-center gap-3">今日行車運轉重點</h3>
             <div id="plan-content" class="text-3xl font-bold text-slate-800 leading-[1.6] tracking-wide text-justify">
-                <div class="animate-pulse flex space-y-4 flex-col">
-                    <div class="h-6 bg-slate-200 rounded w-3/4"></div>
-                    <div class="h-6 bg-slate-200 rounded"></div>
-                    <div class="h-6 bg-slate-200 rounded w-5/6"></div>
-                </div>
+                正在讀取資料...
             </div>
         </section>
         
         <footer class="flex justify-between items-center px-4">
-            <div class="flex items-center gap-2 text-green-600 font-bold">
-                <span class="w-3 h-3 bg-green-500 rounded-full animate-ping"></span>
-                雲端資料連線正常
-            </div>
-            <button onclick="location.reload()" class="bg-slate-800 hover:bg-black text-white px-8 py-3 rounded-2xl font-black transition-all shadow-lg active:scale-95">
-                🔄 重新整理
-            </button>
+            <div id="status-tag" class="text-slate-400 font-bold">連線狀態確認中...</div>
+            <button onclick="location.reload()" class="bg-slate-800 text-white px-8 py-3 rounded-2xl font-black">🔄 重新整理</button>
         </footer>
     </div>
 
     <script>
-        // 設定區
         const SPREADSHEET_ID = '1Qjzc0SVrW82cqaxMnPS_YJbbFVXCUFtL652L2PM2SU4';
         const API_KEY = 'AIzaSyD7Bnmu-RZx-jU6DqbEn28Ew1SMKyRnGOQ';
-        const RANGE = '日期!A1:E20'; // 務必確認試算表的分頁名稱叫「日期」
+        const RANGE = '日期!A1:E20'; 
 
-        // 登入成功後的回調函式
         async function handleCredentialResponse(response) {
-            console.log("登入成功，正在獲取資料...");
-            
-            // 切換畫面顯示
             document.getElementById('auth_container').classList.add('hidden');
             document.getElementById('main_content').classList.remove('hidden');
-
-            // 呼叫抓取資料函式
             fetchData();
         }
 
@@ -91,31 +73,35 @@
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                const rows = data.values;
 
+                if (data.error) {
+                    // 如果 Google 回傳錯誤，顯示具體原因
+                    throw new Error(`Google API 錯誤: ${data.error.message} (代碼: ${data.error.code})`);
+                }
+
+                const rows = data.values;
                 if (rows && rows.length >= 3) {
-                    // 填入日期、星期、空調 (根據您的試算表結構 A3, B3, C3)
                     document.getElementById('date').innerText = rows[2][0] || '-';
                     document.getElementById('week').innerText = rows[2][1] || '-';
                     document.getElementById('temp').innerText = (rows[2][2] || '-') + '°C';
                     
-                    // 填入行車重點 (對應 B11，也就是 rows[10][1])
                     const planText = (rows[10] && rows[10][1]) ? rows[10][1] : '今日暫無特定運轉重點。';
                     document.getElementById('plan-content').innerHTML = `
                         <div class="bg-yellow-50 p-6 rounded-2xl border-l-8 border-yellow-400">
                             ${planText.replace(/\n/g, '<br>')}
                         </div>
                     `;
-                } else {
-                    throw new Error("格式不正確");
+                    document.getElementById('status-tag').innerText = "✅ 資料更新成功";
+                    document.getElementById('status-tag').classList.add('text-green-600');
                 }
             } catch (error) {
-                console.error("抓取失敗:", error);
+                console.error(error);
                 document.getElementById('plan-content').innerHTML = `
-                    <div class="text-red-600 p-6 border-2 border-red-200 rounded-2xl bg-red-50">
-                        讀取失敗！請確認：<br>
-                        1. 您的 Google 帳號擁有該試算表檢視權限。<br>
-                        2. 試算表分頁名稱是否正確。
+                    <div class="text-red-600 p-6 border-2 border-red-200 rounded-2xl bg-red-50 text-xl">
+                        讀取失敗！原因如下：<br>
+                        <span class="text-sm font-normal text-slate-500">${error.message}</span>
+                        <hr class="my-4">
+                        <p class="text-lg">請檢查：您的 Google 帳號是否已獲邀加入試算表的「共用」名單？</p>
                     </div>
                 `;
             }
