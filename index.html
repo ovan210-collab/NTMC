@@ -22,7 +22,6 @@
             </div>
             <h2 class="text-3xl font-black text-slate-800 mb-4">身分驗證</h2>
             <p class="text-slate-500 mb-10 font-bold leading-relaxed">本系統僅供安坑車務中心<br>授權人員登入使用</p>
-            
             <div id="g_id_onload"
                  data-client_id="60751568124-0jn0tiv85us5u2lf2fr0c501226jcpi6.apps.googleusercontent.com"
                  data-callback="handleCredentialResponse"
@@ -36,7 +35,7 @@
         <header class="bg-white p-10 rounded-[2.5rem] shadow-xl border-t-[12px] border-blue-900 text-center">
             <h1 class="text-3xl md:text-5xl font-black text-blue-900 tracking-tight">安坑車務中心司機員勤前指示</h1>
             <div class="mt-10 flex flex-wrap justify-center gap-10 text-2xl font-bold">
-                <div class="flex items-center gap-2">📅 日期：<span id="date" class="text-slate-900 border-b-4 border-blue-200 px-2">-</span></div>
+                <div class="flex items-center gap-2">📅 日期：<span id="date" class="text-slate-900 border-b-4 border-blue-200 px-2">讀取中...</span></div>
                 <div class="flex items-center gap-2">🗓️ 星期：<span id="week" class="text-slate-900 border-b-4 border-blue-200 px-2">-</span></div>
                 <div class="flex items-center gap-2 text-red-600">🌡️ 空調設定：<span id="temp" class="px-2">-°C</span></div>
             </div>
@@ -44,22 +43,20 @@
 
         <section class="bg-white p-12 rounded-[3rem] shadow-2xl border border-blue-100 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-3 h-full bg-blue-600"></div>
-            <h3 class="text-3xl font-black text-blue-800 mb-8 flex items-center gap-3">今日行車運轉重點</h3>
-            <div id="plan-content" class="text-3xl font-bold text-slate-800 leading-[1.6] tracking-wide text-justify">
-                正在讀取資料...
-            </div>
+            <h3 class="text-3xl font-black text-blue-800 mb-8">今日行車運轉重點</h3>
+            <div id="plan-content" class="text-3xl font-bold text-slate-800 leading-[1.6]">正在搜尋指定頁面資料...</div>
         </section>
         
         <footer class="flex justify-between items-center px-4">
             <div id="status-tag" class="text-slate-400 font-bold">連線狀態確認中...</div>
-            <button onclick="location.reload()" class="bg-slate-800 text-white px-8 py-3 rounded-2xl font-black">🔄 重新整理</button>
+            <button onclick="location.reload()" class="bg-slate-800 text-white px-8 py-3 rounded-2xl font-black shadow-lg">🔄 重新整理</button>
         </footer>
     </div>
 
     <script>
         const SPREADSHEET_ID = '1Qjzc0SVrW82cqaxMnPS_YJbbFVXCUFtL652L2PM2SU4';
         const API_KEY = 'AIzaSyD7Bnmu-RZx-jU6DqbEn28Ew1SMKyRnGOQ';
-        const RANGE = '日期!A1:E20'; 
+        const TARGET_GID = 1753096036; // 這是您截圖中確定的頁面 ID
 
         async function handleCredentialResponse(response) {
             document.getElementById('auth_container').classList.add('hidden');
@@ -68,16 +65,25 @@
         }
 
         async function fetchData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-
             try {
-                const res = await fetch(url);
-                const data = await res.json();
+                // 第一步：先抓取整份試算表的資訊，找出 GID 對應的名稱
+                const metadataUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?key=${API_KEY}`;
+                const metaRes = await fetch(metadataUrl);
+                const metaData = await metaRes.json();
+                
+                if (metaData.error) throw new Error(metaData.error.message);
 
-                if (data.error) {
-                    // 如果 Google 回傳錯誤，顯示具體原因
-                    throw new Error(`Google API 錯誤: ${data.error.message} (代碼: ${data.error.code})`);
-                }
+                // 尋找符合 GID 的分頁名稱
+                const sheet = metaData.sheets.find(s => s.properties.sheetId === TARGET_GID);
+                if (!sheet) throw new Error("找不到指定的試算表分頁 (GID: 1753096036)");
+                
+                const sheetName = sheet.properties.title;
+                console.log("找到分頁名稱：", sheetName);
+
+                // 第二步：使用找到的名稱抓取資料
+                const dataUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(sheetName)}!A1:E20?key=${API_KEY}`;
+                const dataRes = await fetch(dataUrl);
+                const data = await dataRes.json();
 
                 const rows = data.values;
                 if (rows && rows.length >= 3) {
@@ -87,23 +93,17 @@
                     
                     const planText = (rows[10] && rows[10][1]) ? rows[10][1] : '今日暫無特定運轉重點。';
                     document.getElementById('plan-content').innerHTML = `
-                        <div class="bg-yellow-50 p-6 rounded-2xl border-l-8 border-yellow-400">
+                        <div class="bg-yellow-50 p-6 rounded-2xl border-l-8 border-yellow-400 font-bold">
                             ${planText.replace(/\n/g, '<br>')}
                         </div>
                     `;
-                    document.getElementById('status-tag').innerText = "✅ 資料更新成功";
-                    document.getElementById('status-tag').classList.add('text-green-600');
+                    document.getElementById('status-tag').innerText = "✅ 已成功讀取頁面 [" + sheetName + "]";
+                    document.getElementById('status-tag').className = 'text-green-600 font-bold';
                 }
             } catch (error) {
-                console.error(error);
-                document.getElementById('plan-content').innerHTML = `
-                    <div class="text-red-600 p-6 border-2 border-red-200 rounded-2xl bg-red-50 text-xl">
-                        讀取失敗！原因如下：<br>
-                        <span class="text-sm font-normal text-slate-500">${error.message}</span>
-                        <hr class="my-4">
-                        <p class="text-lg">請檢查：您的 Google 帳號是否已獲邀加入試算表的「共用」名單？</p>
-                    </div>
-                `;
+                document.getElementById('plan-content').innerText = "讀取失敗：" + error.message;
+                document.getElementById('status-tag').innerText = "❌ 連線失敗";
+                document.getElementById('status-tag').className = 'text-red-500 font-bold';
             }
         }
     </script>
