@@ -3,96 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安坑勤前指示中心 - 自動更新版</title>
+    <title>安坑勤前指示中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: "Microsoft JhengHei", sans-serif; background: #f8fafc; }
-        .loading { animate: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        @media print { .no-print { display: none; } }
+        body { font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; background: #f8fafc; }
+        .hidden { display: none; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-5xl mx-auto space-y-6">
-        
-        <header class="bg-white p-8 rounded-3xl shadow-sm border-t-8 border-blue-800 text-center">
-            <h1 class="text-xl font-bold text-slate-500 tracking-widest mb-2">新北大眾捷運(股)公司</h1>
-            <h2 class="text-3xl md:text-4xl font-black text-blue-900">安坑車務中心司機員勤前指示</h2>
-            <div class="mt-8 flex justify-center gap-8 text-lg font-bold">
-                <p>日期：<span id="date" class="text-slate-900 border-b px-2">載入中...</span></p>
-                <p>星期：<span id="week" class="text-slate-900 border-b px-2">-</span></p>
-                <p>空調：<span id="temp" class="text-red-600 px-2">-°C</span></p>
+
+    <div id="auth_container" class="flex flex-col items-center justify-center min-h-[80vh] space-y-8">
+        <div class="bg-white p-12 rounded-[2rem] shadow-2xl text-center border-t-8 border-blue-600 max-w-sm w-full">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="id-card"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <h2 class="text-3xl font-black text-slate-800 mb-4">身分驗證</h2>
+            <p class="text-slate-500 mb-10 font-bold leading-relaxed">本系統僅供安坑車務中心<br>授權人員登入使用</p>
+            
+            <div id="g_id_onload"
+                 data-client_id="60751568124-0jn0tiv85us5u2lf2fr0c501226jcpi6.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin flex justify-center" data-type="standard" data-size="large" data-theme="filled_blue" data-text="signin_with" data-shape="pill" data-logo_alignment="left"></div>
+        </div>
+    </div>
+
+    <div id="main_content" class="max-w-5xl mx-auto space-y-6 hidden">
+        <header class="bg-white p-10 rounded-[2.5rem] shadow-xl border-t-[12px] border-blue-900 text-center">
+            <h1 class="text-3xl md:text-5xl font-black text-blue-900 tracking-tight">安坑車務中心司機員勤前指示</h1>
+            <div class="mt-10 flex flex-wrap justify-center gap-10 text-2xl font-bold">
+                <div class="flex items-center gap-2">📅 日期：<span id="date" class="text-slate-900 border-b-4 border-blue-200 px-2">-</span></div>
+                <div class="flex items-center gap-2">🗓️ 星期：<span id="week" class="text-slate-900 border-b-4 border-blue-200 px-2">-</span></div>
+                <div class="flex items-center gap-2 text-red-600">🌡️ 空調設定：<span id="temp" class="px-2">-°C</span></div>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-emerald-500">
-                <p class="text-xs text-slate-400 font-black mb-4">今日值班台人員</p>
-                <div class="grid grid-cols-3 gap-2 text-center">
-                    <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400 block">早領</span><b id="staff-m" class="text-lg">-</b></div>
-                    <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400 block">午領</span><b id="staff-a" class="text-lg">-</b></div>
-                    <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400 block">夜領</span><b id="staff-n" class="text-lg">-</b></div>
+        <section class="bg-white p-12 rounded-[3rem] shadow-2xl border border-blue-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-3 h-full bg-blue-600"></div>
+            <h3 class="text-3xl font-black text-blue-800 mb-8 flex items-center gap-3">
+                <span class="bg-blue-800 text-white p-2 rounded-lg text-lg">!</span>
+                今日行車運轉重點
+            </h3>
+            <div id="plan-content" class="text-3xl font-bold text-slate-800 leading-[1.6] tracking-wide text-justify">
+                <div class="animate-pulse flex space-y-4 flex-col">
+                    <div class="h-6 bg-slate-200 rounded w-3/4"></div>
+                    <div class="h-6 bg-slate-200 rounded"></div>
+                    <div class="h-6 bg-slate-200 rounded w-5/6"></div>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-orange-500">
-                <p class="text-xs text-slate-400 font-black mb-2">今日可用車組狀態</p>
-                <p id="trains" class="text-lg font-bold text-slate-700 whitespace-pre-line">資料同步中...</p>
-            </div>
-        </div>
-
-        <section class="bg-white p-8 rounded-3xl shadow-lg border border-blue-100">
-            <h3 class="text-xl font-black text-blue-800 mb-6 border-b pb-2">今日行車運轉重點</h3>
-            <div id="plan-content" class="text-xl font-bold text-slate-800 leading-relaxed text-justify">
-                <span class="text-slate-300">正在從 Google 試算表同步最新指示...</span>
-            </div>
         </section>
-
-        <footer class="flex justify-between items-center no-print">
-            <div class="text-slate-400 font-bold">發起人員：<span id="author" class="text-slate-800 border-b px-4">-</span></div>
-            <button onclick="window.print()" class="bg-red-700 text-white px-8 py-2 rounded-xl font-bold shadow-lg">列印 PDF</button>
+        
+        <footer class="flex justify-between items-center px-4">
+            <div class="flex items-center gap-2 text-green-600 font-bold">
+                <span class="w-3 h-3 bg-green-500 rounded-full animate-ping"></span>
+                雲端資料連線正常
+            </div>
+            <button onclick="location.reload()" class="bg-slate-800 hover:bg-black text-white px-8 py-3 rounded-2xl font-black transition-all shadow-lg active:scale-95">
+                🔄 重新整理
+            </button>
         </footer>
     </div>
 
     <script>
-        // 【請修改這裡】填入你的 Google 試算表 ID
+        // 設定區
         const SPREADSHEET_ID = '1Qjzc0SVrW82cqaxMnPS_YJbbFVXCUFtL652L2PM2SU4';
-        
-        // 抓取 CSV 格式的資料 (最簡單的方法)
-        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=1753096036`;
+        const API_KEY = 'AIzaSyD7Bnmu-RZx-jU6DqbEn28Ew1SMKyRnGOQ';
+        const RANGE = '日期!A1:E20'; // 務必確認試算表的分頁名稱叫「日期」
 
-        async function fetchData() {
-            try {
-                const response = await fetch(url);
-                const data = await response.text();
-                const rows = data.split('\n').map(row => row.split(','));
+        // 登入成功後的回調函式
+        async function handleCredentialResponse(response) {
+            console.log("登入成功，正在獲取資料...");
+            
+            // 切換畫面顯示
+            document.getElementById('auth_container').classList.add('hidden');
+            document.getElementById('main_content').classList.remove('hidden');
 
-                // 假設你的資料位置如下 (你可以根據試算表行列自行調整 index)
-                // 這裡的邏輯需要對應你的試算表格子位置
-                document.getElementById('date').innerText = rows[2][0] || '未定'; // 範例：抓取第3列第1個
-                document.getElementById('week').innerText = rows[2][1] || '-';
-                document.getElementById('temp').innerText = rows[2][2] + '°C';
-                
-                document.getElementById('staff-m').innerText = rows[5][1] || '-';
-                document.getElementById('staff-a').innerText = rows[5][2] || '-';
-                document.getElementById('staff-n').innerText = rows[5][3] || '-';
-
-                document.getElementById('trains').innerText = rows[8][1] || '正常運轉';
-
-                // 處理運轉重點 (加上螢光底)
-                const mainPlan = rows[10][1] || '今日無特定重點';
-                document.getElementById('plan-content').innerHTML = `
-                    <span class="bg-yellow-200 px-1 rounded shadow-sm">${mainPlan}</span>
-                `;
-                
-                document.getElementById('author').innerText = rows[12][1] || '值班主任';
-
-            } catch (error) {
-                console.error('抓取失敗:', error);
-                document.getElementById('plan-content').innerText = '無法連線至 Google 試算表，請檢查權限設定。';
-            }
+            // 呼叫抓取資料函式
+            fetchData();
         }
 
-        fetchData();
+        async function fetchData() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const rows = data.values;
+
+                if (rows && rows.length >= 3) {
+                    // 填入日期、星期、空調 (根據您的試算表結構 A3, B3, C3)
+                    document.getElementById('date').innerText = rows[2][0] || '-';
+                    document.getElementById('week').innerText = rows[2][1] || '-';
+                    document.getElementById('temp').innerText = (rows[2][2] || '-') + '°C';
+                    
+                    // 填入行車重點 (對應 B11，也就是 rows[10][1])
+                    const planText = (rows[10] && rows[10][1]) ? rows[10][1] : '今日暫無特定運轉重點。';
+                    document.getElementById('plan-content').innerHTML = `
+                        <div class="bg-yellow-50 p-6 rounded-2xl border-l-8 border-yellow-400">
+                            ${planText.replace(/\n/g, '<br>')}
+                        </div>
+                    `;
+                } else {
+                    throw new Error("格式不正確");
+                }
+            } catch (error) {
+                console.error("抓取失敗:", error);
+                document.getElementById('plan-content').innerHTML = `
+                    <div class="text-red-600 p-6 border-2 border-red-200 rounded-2xl bg-red-50">
+                        讀取失敗！請確認：<br>
+                        1. 您的 Google 帳號擁有該試算表檢視權限。<br>
+                        2. 試算表分頁名稱是否正確。
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html>
