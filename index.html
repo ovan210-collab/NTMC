@@ -3,96 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安坑勤前指示中心</title>
+    <title>安坑勤前指示中心 - 自動更新版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif; 
-            -webkit-print-color-adjust: exact !important; 
-            print-color-adjust: exact !important;
-        }
-        @media print { 
-            .no-print { display: none; } 
-            .bg-yellow-200 { background-color: #fef08a !important; }
-        }
+        body { font-family: "Microsoft JhengHei", sans-serif; background: #f8fafc; }
+        .loading { animate: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
-<body class="bg-slate-100 p-4 md:p-8">
-    <div class="max-w-5xl mx-auto">
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto space-y-6">
         
-        <header class="text-center mb-10 bg-white py-10 rounded-2xl shadow-sm border-t-8 border-blue-800 relative">
-            <div class="absolute top-4 right-6 text-xs font-bold font-mono text-slate-400 no-print">4-FM-F201-MTO004-01</div>
-            <h1 class="text-xl md:text-2xl font-bold text-slate-800 tracking-[0.3em] mb-3">新北大眾捷運(股)公司</h1>
-            <h2 class="text-3xl md:text-4xl font-black text-blue-900 tracking-tight">安坑車務中心司機員勤前指示</h2>
-            <div class="mt-8 flex flex-wrap justify-center gap-6 md:gap-12 text-lg font-bold text-slate-500">
-                <p>日期：<span class="text-slate-900 border-b border-slate-300 pb-1 px-2">115/03/20</span></p>
-                <p>星期：<span class="text-slate-900 border-b border-slate-300 pb-1 px-2">五</span></p>
-                <p>今日空調設定：<span class="text-red-600 font-black px-2">24°C</span></p>
+        <header class="bg-white p-8 rounded-3xl shadow-sm border-t-8 border-blue-800 text-center">
+            <h1 class="text-xl font-bold text-slate-500 tracking-widest mb-2">新北大眾捷運(股)公司</h1>
+            <h2 class="text-3xl md:text-4xl font-black text-blue-900">安坑車務中心司機員勤前指示</h2>
+            <div class="mt-8 flex justify-center gap-8 text-lg font-bold">
+                <p>日期：<span id="date" class="text-slate-900 border-b px-2">載入中...</span></p>
+                <p>星期：<span id="week" class="text-slate-900 border-b px-2">-</span></p>
+                <p>空調：<span id="temp" class="text-red-600 px-2">-°C</span></p>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-md border-l-8 border-emerald-500 flex flex-col justify-center">
-                <p class="text-xs text-slate-400 font-black uppercase mb-4 tracking-widest">今日值班台人員</p>
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center shadow-sm">
-                        <span class="block text-sm text-slate-500 font-black mb-1">早領</span>
-                        <p class="text-xl font-black text-slate-700">（待填）</p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center shadow-sm">
-                        <span class="block text-sm text-slate-500 font-black mb-1">午領</span>
-                        <p class="text-xl font-black text-slate-700">（待填）</p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center shadow-sm">
-                        <span class="block text-sm text-slate-500 font-black mb-1">夜領</span>
-                        <p class="text-xl font-black text-slate-700">（待填）</p>
-                    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-emerald-500">
+                <p class="text-xs text-slate-400 font-black mb-4">今日值班台人員</p>
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400 block">早領</span><b id="staff-m" class="text-lg">-</b></div>
+                    <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400 block">午領</span><b id="staff-a" class="text-lg">-</b></div>
+                    <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400 block">夜領</span><b id="staff-n" class="text-lg">-</b></div>
                 </div>
             </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-md border-l-8 border-orange-500">
-                <p class="text-xs text-slate-400 font-black uppercase mb-2 tracking-widest">今日可用車組狀態</p>
-                <p class="text-lg font-bold text-slate-700 leading-relaxed whitespace-pre-line bg-orange-50/30 p-3 rounded-lg">KA-KG：正常運轉</p>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-orange-500">
+                <p class="text-xs text-slate-400 font-black mb-2">今日可用車組狀態</p>
+                <p id="trains" class="text-lg font-bold text-slate-700 whitespace-pre-line">資料同步中...</p>
             </div>
         </div>
 
-        <section class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-4 border-blue-600 mb-8">
-            <h3 class="text-xl font-black text-blue-900 mb-8 border-b border-slate-100 pb-4">今日行車運轉重點</h3>
-            <div class="text-xl font-bold text-slate-800 leading-[2.2] text-justify px-2">
-                <p class="mb-4">
-                    <span class="bg-yellow-200 px-1.5 py-0.5 rounded shadow-sm border border-yellow-300/50">
-                        1. 即日起通過會車區時，不需再指差轉轍器方位，確認號誌開通後行駛即可。另因舒適度及反位轉轍器速限考量，正線K1、K4、K6、K9會車區正、反位轉轍器車班自主速限為20km/h；機廠轉轍器依舊限制10km/h，不得超速。（2）若號誌機未開通，請立即停車回報行控中心協助開通。（3）若遇號誌機黑屏，應先回報OCC，取得授權後才可冒燈，並依指示指差確認轉轍器方位正確，方得通過。(115/3/20)
-                    </span>
-                </p>
+        <section class="bg-white p-8 rounded-3xl shadow-lg border border-blue-100">
+            <h3 class="text-xl font-black text-blue-800 mb-6 border-b pb-2">今日行車運轉重點</h3>
+            <div id="plan-content" class="text-xl font-bold text-slate-800 leading-relaxed text-justify">
+                <span class="text-slate-300">正在從 Google 試算表同步最新指示...</span>
             </div>
         </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-                <h4 class="font-black text-blue-800 mb-4 border-l-4 border-blue-400 pl-3">行車及設備相關</h4>
-                <div class="space-y-3 text-slate-600 font-bold">
-                    <p class="flex items-start"><span class="mr-3 text-blue-300 mt-1">●</span> 轉轍器運轉模式確認</p>
-                    <p class="flex items-start"><span class="mr-3 text-blue-300 mt-1">●</span> 通訊系統測試正常</p>
-                </div>
-            </div>
-            <div class="bg-red-50 p-8 rounded-2xl border border-red-100 shadow-sm">
-                <h4 class="font-black text-red-800 mb-4 border-l-4 border-red-500 pl-3">勞安及安全規範</h4>
-                <div class="space-y-3 text-red-700 font-bold">
-                    <p class="flex items-start"><span class="mr-3 text-red-300 mt-1">⚠️</span> 嚴禁超速行駛</p>
-                    <p class="flex items-start"><span class="mr-3 text-red-300 mt-1">⚠️</span> 進入工作區域穿戴防護裝備</p>
-                </div>
-            </div>
-        </div>
-
-        <footer class="flex flex-col md:flex-row justify-between items-center gap-6 border-t-2 border-slate-200 pt-8 no-print">
-            <div class="text-lg font-bold text-slate-400">
-                發起人員：<span class="text-slate-900 border-b-2 border-blue-500 px-8 ml-2">（簽名處）</span>
-            </div>
-            <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                <button onclick="window.open('https://docs.google.com/spreadsheets/d/1AqnXF4A6kVnlRSxTTiu_eJ_x9HVBrnSxfF6ODl2E5mE/')" class="bg-slate-700 text-white px-8 py-3 rounded-xl font-black hover:bg-slate-900 shadow-lg transition-all text-center">歷次勤前紀錄</button>
-                <button onclick="window.print()" class="bg-red-700 text-white px-10 py-3 rounded-xl font-black hover:bg-red-900 shadow-xl transition-all text-center">儲存為 PDF / 列印</button>
-            </div>
+        <footer class="flex justify-between items-center no-print">
+            <div class="text-slate-400 font-bold">發起人員：<span id="author" class="text-slate-800 border-b px-4">-</span></div>
+            <button onclick="window.print()" class="bg-red-700 text-white px-8 py-2 rounded-xl font-bold shadow-lg">列印 PDF</button>
         </footer>
     </div>
+
+    <script>
+        // 【請修改這裡】填入你的 Google 試算表 ID
+        const SPREADSHEET_ID = '1Qjzc0SVrW82cqaxMnPS_YJbbFVXCUFtL652L2PM2SU4';
+        
+        // 抓取 CSV 格式的資料 (最簡單的方法)
+        const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=1753096036`;
+
+        async function fetchData() {
+            try {
+                const response = await fetch(url);
+                const data = await response.text();
+                const rows = data.split('\n').map(row => row.split(','));
+
+                // 假設你的資料位置如下 (你可以根據試算表行列自行調整 index)
+                // 這裡的邏輯需要對應你的試算表格子位置
+                document.getElementById('date').innerText = rows[2][0] || '未定'; // 範例：抓取第3列第1個
+                document.getElementById('week').innerText = rows[2][1] || '-';
+                document.getElementById('temp').innerText = rows[2][2] + '°C';
+                
+                document.getElementById('staff-m').innerText = rows[5][1] || '-';
+                document.getElementById('staff-a').innerText = rows[5][2] || '-';
+                document.getElementById('staff-n').innerText = rows[5][3] || '-';
+
+                document.getElementById('trains').innerText = rows[8][1] || '正常運轉';
+
+                // 處理運轉重點 (加上螢光底)
+                const mainPlan = rows[10][1] || '今日無特定重點';
+                document.getElementById('plan-content').innerHTML = `
+                    <span class="bg-yellow-200 px-1 rounded shadow-sm">${mainPlan}</span>
+                `;
+                
+                document.getElementById('author').innerText = rows[12][1] || '值班主任';
+
+            } catch (error) {
+                console.error('抓取失敗:', error);
+                document.getElementById('plan-content').innerText = '無法連線至 Google 試算表，請檢查權限設定。';
+            }
+        }
+
+        fetchData();
+    </script>
 </body>
 </html>
