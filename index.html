@@ -11,7 +11,10 @@
             -webkit-print-color-adjust: exact !important; 
             print-color-adjust: exact !important;
         }
-        @media print { .no-print { display: none; } }
+        @media print { 
+            .no-print { display: none; } 
+            .bg-yellow-200 { background-color: #fef08a !important; }
+        }
     </style>
 </head>
 <body class="bg-slate-100 p-4 md:p-8">
@@ -32,15 +35,15 @@
             <div class="bg-white p-6 rounded-xl shadow-md border-l-8 border-emerald-500 flex flex-col justify-center">
                 <p class="text-xs text-slate-400 font-black uppercase mb-4 tracking-widest">今日值班台人員</p>
                 <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center shadow-sm">
                         <span class="block text-sm text-slate-500 font-black mb-1">早領</span>
                         <p class="text-xl font-black text-slate-700">（待填）</p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center shadow-sm">
                         <span class="block text-sm text-slate-500 font-black mb-1">午領</span>
                         <p class="text-xl font-black text-slate-700">（待填）</p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center shadow-sm">
                         <span class="block text-sm text-slate-500 font-black mb-1">夜領</span>
                         <p class="text-xl font-black text-slate-700">（待填）</p>
                     </div>
@@ -49,15 +52,15 @@
 
             <div class="bg-white p-6 rounded-xl shadow-md border-l-8 border-orange-500">
                 <p class="text-xs text-slate-400 font-black uppercase mb-2 tracking-widest">今日可用車組狀態</p>
-                <p class="text-lg font-bold text-slate-700 leading-relaxed">KA-KG：正常運轉</p>
+                <p class="text-lg font-bold text-slate-700 leading-relaxed whitespace-pre-line bg-orange-50/30 p-3 rounded-lg">KA-KG：正常運轉</p>
             </div>
         </div>
 
         <section class="bg-white p-6 md:p-10 rounded-3xl shadow-xl border-t-4 border-blue-600 mb-8">
             <h3 class="text-xl font-black text-blue-900 mb-8 border-b border-slate-100 pb-4">今日行車運轉重點</h3>
             <div class="text-xl font-bold text-slate-800 leading-[2.2] text-justify px-2">
-                <p class="mb-2">
-                    <span class="bg-yellow-200 px-1 rounded shadow-sm">
+                <p class="mb-4">
+                    <span class="bg-yellow-200 px-1.5 py-0.5 rounded shadow-sm border border-yellow-300/50">
                         1. 即日起通過會車區時，不需再指差轉轍器方位，確認號誌開通後行駛即可。另因舒適度及反位轉轍器速限考量，正線K1、K4、K6、K9會車區正、反位轉轍器車班自主速限為20km/h；機廠轉轍器依舊限制10km/h，不得超速。（2）若號誌機未開通，請立即停車回報行控中心協助開通。（3）若遇號誌機黑屏，應先回報OCC，取得授權後才可冒燈，並依指示指差確認轉轍器方位正確，方得通過。(115/3/20)
                     </span>
                 </p>
@@ -68,24 +71,26 @@
             <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                 <h4 class="font-black text-blue-800 mb-4 border-l-4 border-blue-400 pl-3">行車及設備相關</h4>
                 <div class="space-y-3 text-slate-600 font-bold">
-                    <p class="flex items-start"><span class="mr-2 text-blue-300">●</span> 轉轍器運轉模式確認</p>
+                    <p class="flex items-start"><span class="mr-3 text-blue-300 mt-1">●</span> 轉轍器運轉模式確認</p>
+                    <p class="flex items-start"><span class="mr-3 text-blue-300 mt-1">●</span> 通訊系統測試正常</p>
                 </div>
             </div>
             <div class="bg-red-50 p-8 rounded-2xl border border-red-100 shadow-sm">
                 <h4 class="font-black text-red-800 mb-4 border-l-4 border-red-500 pl-3">勞安及安全規範</h4>
                 <div class="space-y-3 text-red-700 font-bold">
-                    <p class="flex items-start"><span class="mr-2 text-red-300">⚠️</span> 嚴禁超速行駛</p>
+                    <p class="flex items-start"><span class="mr-3 text-red-300 mt-1">⚠️</span> 嚴禁超速行駛</p>
+                    <p class="flex items-start"><span class="mr-3 text-red-300 mt-1">⚠️</span> 進入工作區域穿戴防護裝備</p>
                 </div>
             </div>
         </div>
 
         <footer class="flex flex-col md:flex-row justify-between items-center gap-6 border-t-2 border-slate-200 pt-8 no-print">
-            <div class="text-lg font-bold text-slate-400 text-center md:text-left">
-                發起人員：<span class="text-slate-900 border-b-2 border-blue-500 px-6 ml-2">（簽名處）</span>
+            <div class="text-lg font-bold text-slate-400">
+                發起人員：<span class="text-slate-900 border-b-2 border-blue-500 px-8 ml-2">（簽名處）</span>
             </div>
             <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
                 <button onclick="window.open('https://docs.google.com/spreadsheets/d/1AqnXF4A6kVnlRSxTTiu_eJ_x9HVBrnSxfF6ODl2E5mE/')" class="bg-slate-700 text-white px-8 py-3 rounded-xl font-black hover:bg-slate-900 shadow-lg transition-all text-center">歷次勤前紀錄</button>
-                <button onclick="window.print()" class="bg-red-700 text-white px-8 py-3 rounded-xl font-black hover:bg-red-900 shadow-xl transition-all text-center">儲存為 PDF / 列印</button>
+                <button onclick="window.print()" class="bg-red-700 text-white px-10 py-3 rounded-xl font-black hover:bg-red-900 shadow-xl transition-all text-center">儲存為 PDF / 列印</button>
             </div>
         </footer>
     </div>
